@@ -666,23 +666,31 @@
     }
 
     async function saveToSheets(data) {
-      try {
-        const response = await fetch(NGC_SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'add',
-            data: data
-          })
-        });
+  try {
+    const response = await fetch(NGC_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'add',
+        data: data
+      })
+    });
 
-        return true;
-      } catch (error) {
-        console.error('Error saving to NGC database:', error);
-        return false;
-      }
+    const result = await response.json();
+
+    if (result.status === 'success') {
+      await loadDataFromSheets(); // ricarica subito
+      return true;
+    } else {
+      console.error('Backend error:', result);
+      return false;
     }
+  } catch (error) {
+    console.error('Network error:', error);
+    return false;
+  }
+}
+
 
     async function loadDataFromSheets() {
       try {
